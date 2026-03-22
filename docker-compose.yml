@@ -1,0 +1,115 @@
+version: '3.8'
+
+services:
+# ==========================================
+# CAMADA DE DADOS (Isolamento de Persistência)
+# ==========================================
+  db-orders:
+    image: postgres:15-alpine
+    container_name: db-orders
+    environment:
+      POSTGRES_DB: orders_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: desafioPrPedidos
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata_orders:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  db-users:
+    image: postgres:15-alpine
+    container_name: db-users
+    environment:
+      POSTGRES_DB: users_db
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: desafioPrUsuarios
+    ports:
+      - "5433:5432" # Porta diferente no host para evitar conflito
+    volumes:
+      - pgdata_users:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+# ==========================================
+# CAMADA DE MENSAGERIA & CACHE (Bônus)
+# ==========================================
+  redis-broker:
+    image: redis:7-alpine
+    container_name: redis-broker
+    ports:
+      - "6379:6379"
+    networks:
+      - app-network
+
+# ==========================================
+# CAMADA DE SERVIÇOS (Backends FastAPI)
+# ==========================================
+  orders-service:
+    build: 
+      context: ./backend/orders
+      dockerfile: Dockerfile
+    container_name: orders-service
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://admin:desafioPrPedidos@db-orders:5432/orders_db
+      - REDIS_URL=redis://redis-broker:6379/0
+    depends_on:
+      - db-orders
+      - redis-broker
+    networks:
+      - app-network
+
+  users-service:
+    build: 
+      context: ./backend/users
+      dockerfile: Dockerfile
+    container_name: users-service
+    ports:
+      - "8001:8001"
+    environment:
+      - DATABASE_URL=postgresql://admin:desafioPrUsuarios@db-users:5432/users_db
+      - JWT_SECRET=chave_desafio_Pr_jwt_2026
+    depends_on:
+      - db-users
+    networks:
+      - app-network
+
+# ==========================================
+# CAMADA DE VISÃO (Microfrontends React)
+# ==========================================
+  mfe-shell:
+    build: 
+      context: ./frontend/shell
+      dockerfile: Dockerfile
+    container_name: mfe-shell
+    ports:
+      - "3000:3000"
+    depends_on:
+      - orders-service
+      - users-service
+    networks:
+      - app-network
+
+  mfe-orders:
+    build: 
+      context: ./frontend/orders
+      dockerfile: Dockerfile
+    container_name: mfe-orders
+    ports:
+      - "3001:3001"
+    networks:
+      - app-network
+
+# ==========================================
+# VOLUMES E REDES
+# ==========================================
+volumes:
+  pgdata_orders:
+  pgdata_users:
+
+networks:
+  app-network:
+    driver: bridge
