@@ -1,6 +1,6 @@
 # DESAFIO PR
 
-<img src="https://github.com/wendelanchieta/desafiopr/blob/master/img/arquitetura.png">
+![Arquitetura](/img/arquitetura.jpg)
 
 ## Decisões Técnicas e Justificativas
 
