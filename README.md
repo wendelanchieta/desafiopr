@@ -1,5 +1,7 @@
 # DESAFIO PR
 
+<img src="https://github.com/wendelanchieta/desafiopr/blob/master/img/arquitetura.png">
+
 ## Decisões Técnicas e Justificativas
 
 1. Backend: Framework FastAPI a escolha pelo FastAPI baseia-se nos seguintes pontos:
@@ -21,6 +23,20 @@
 
    * Arquitetura Assíncrona: Para não impactar a experiência do usuário, a análise de prioridade é disparada via [fila (Redis)](https://redis.io/glossary/redis-queue/), permitindo que o sistema responda instantaneamente enquanto a IA processa em background.
 
+
+## Infraestrutura
+
+A solução utiliza `Docker Compose` para orquestrar toda a stack com um único comando
+
+   * Isolamento: Cada componente (Shell, Pedidos, Auth API, DBs) roda em um contêiner separado;
+   * Portabilidade: Garante que o ambiente de desenvolvimento seja idêntico ao de produção/avaliação.
+
+## Evoluções futuras 
+
+> Devido à restrição de tempo do desafio, algumas melhorias foram priorizadas para versões futuras:
+>  * Observabilidade: Implementação de rastreamento distribuído (Jaeger) e logs estruturados centralizados;
+>  * Resiliência: Adição de padrões de Circuit Breaker nas chamadas entre microsserviços;
+>  * Segurança: Implementação de um API Gateway robusto (como Kong ou Nginx) para gerenciar o tráfego e políticas de rate limiting.
 
 > `RASCUNHO`
 
