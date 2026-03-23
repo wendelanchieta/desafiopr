@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
 # ==========================================
 # CAMADA DE DADOS (Isolamento de Persistência)
@@ -76,6 +74,23 @@ services:
       - db-users
     networks:
       - app-network
+      
+# ==========================================
+# WORKER SIMULADOR DE PRIORIDADE  (AI WORKER)
+# ==========================================
+  ai-worker:
+    build: 
+      context: ./backend/worker
+      dockerfile: Dockerfile
+    container_name: ai-worker
+    environment:
+      - DATABASE_URL=postgresql://admin:desafioPrPedidos@db-orders:5432/orders_db
+      - REDIS_URL=redis://redis-broker:6379/0
+    depends_on:
+      - db-orders
+      - redis-broker
+    networks:
+      - app-network
 
 # ==========================================
 # CAMADA DE VISÃO (Microfrontends React)
@@ -102,7 +117,7 @@ services:
       - "3001:3001"
     networks:
       - app-network
-
+      
 # ==========================================
 # VOLUMES E REDES
 # ==========================================
