@@ -1,10 +1,31 @@
-import React, { Suspense } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 
-// Importação dinâmica do MFE remoto definido no Webpack
+//Importação dinâmica do MFE remoto definido no Webpack
+const LoginApp = React.lazy(() => import('authMFE/LoginApp'));
 const OrdersApp = React.lazy(() => import('ordersMFE/OrdersApp'));
 
 const Shell = () => {
+	
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('jwt_token'));
+  
+  useEffect(() => {
+    //Escuta o evento disparado pelo MFE de Login
+    const handleAuthChange = () => {
+      setIsAuthenticated(!!localStorage.getItem('jwt_token'));
+    };
+    window.addEventListener('auth-change', handleAuthChange);
+    return () => window.removeEventListener('auth-change', handleAuthChange);
+  }, []);
+  
+  if (!isAuthenticated) {
+    return (
+      <Suspense fallback={<div>Carregando Login...</div>}>
+        <LoginApp />
+      </Suspense>
+    );
+  }
+  
   return (
     <BrowserRouter>
       <div style={{ fontFamily: 'Arial, sans-serif' }}>

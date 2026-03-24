@@ -102,9 +102,14 @@ services:
     container_name: mfe-shell
     ports:
       - "3000:3000"
+    volumes:
+      - ./frontend/shell:/app
+      - /app/node_modules  
     depends_on:
       - orders-service
       - users-service
+      - mfe-auth
+      - mfe-orders
     networks:
       - app-network
 
@@ -115,6 +120,24 @@ services:
     container_name: mfe-orders
     ports:
       - "3001:3001"
+    volumes:
+      - ./frontend/orders:/app
+      - /app/node_modules 
+    networks:
+      - app-network
+      
+  mfe-auth:
+    build: 
+      context: ./frontend/auth
+      dockerfile: Dockerfile
+    container_name: mfe-auth
+    ports:
+      - "3002:3002"
+    volumes:
+      - ./frontend/auth:/app
+      - /app/node_modules
+    depends_on:
+      - users-service
     networks:
       - app-network
       

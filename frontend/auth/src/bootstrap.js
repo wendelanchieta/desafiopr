@@ -1,16 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import OrdersApp from './OrdersApp';
+import LoginApp from './LoginApp';
 
 const mount = (el) => {
   const root = ReactDOM.createRoot(el);
-  root.render(<OrdersApp />);
+  root.render(<LoginApp />);
 };
 
-const devRoot = document.getElementById('orders-dev-root') || document.getElementById('root');
+const devRoot = document.getElementById('login-dev-root') || document.getElementById('root');
 if (devRoot) {
   mount(devRoot);
 }
 
-export default OrdersApp;
+export default LoginApp; 
 export { mount };

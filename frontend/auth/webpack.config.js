@@ -1,20 +1,12 @@
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ModuleFederationPlugin = require('webpack/lib/container/ModuleFederationPlugin');
-const path = require('path');
 
 module.exports = {
   mode: 'development',
   entry: './src/index.js',
-  output: {
-    publicPath: 'http://localhost:3000/', 
-  },
   devServer: {
-    port: 3000,
+    port: 3002,
     historyApiFallback: true,
-    hot: true,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-    },
   },
   module: {
     rules: [
@@ -32,26 +24,18 @@ module.exports = {
   },
   plugins: [
     new ModuleFederationPlugin({
-      name: 'shell',
-      remotes: {
-        authMFE: 'auth@http://localhost:3002/remoteEntry.js',
-        ordersMFE: 'orders@http://localhost:3001/remoteEntry.js',
+      name: 'auth',
+      filename: 'remoteEntry.js',
+      exposes: {
+        './LoginApp': './src/bootstrap',
       },
       shared: {
-        react: { 
-          singleton: true, 
-          requiredVersion: '^18.2.0',
-          eager: true
-        },
-        'react-dom': { 
-          singleton: true, 
-          requiredVersion: '^18.2.0',
-          eager: true 
-        },
+        react: { singleton: true, requiredVersion: '^18.2.0' },
+        'react-dom': { singleton: true, requiredVersion: '^18.2.0' },
       },
     }),
     new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, 'public', 'index.html'),
+      template: './public/index.html',
     }),
   ],
   resolve: {
