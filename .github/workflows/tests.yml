@@ -24,8 +24,8 @@ jobs:
     - name: Instalar dependências
       run: |
         python -m pip install --upgrade pip
-        # Adicione 'sqlalchemy' aqui
-        pip install fastapi uvicorn pytest python-multipart httpx sqlalchemy
+        # Garante que todas as dependências necessárias, incluindo sqlalchemy e redis, sejam instaladas
+        pip install fastapi uvicorn pytest python-multipart httpx sqlalchemy redis
         
         # IMPORTANTE: Se você tiver um arquivo requirements.txt, use o comando abaixo:
         # pip install -r requirements.txt
@@ -37,4 +37,5 @@ jobs:
       run: |
         # Define o PYTHONPATH para incluir o diretório raiz do projeto
         # Isso permite que o Python encontre os módulos 'backend.users.app.main' e 'backend.orders.app.main'
+        # E, com os imports relativos corrigidos nos routers, tudo deve funcionar.
         PYTHONPATH=$(pwd ) pytest
