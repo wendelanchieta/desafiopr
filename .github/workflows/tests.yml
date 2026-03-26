@@ -24,15 +24,17 @@ jobs:
     - name: Instalar dependências
       run: |
         python -m pip install --upgrade pip
-        pip install fastapi uvicorn pytest python-multipart httpx
+        # Adicione 'sqlalchemy' aqui
+        pip install fastapi uvicorn pytest python-multipart httpx sqlalchemy
+        
         # IMPORTANTE: Se você tiver um arquivo requirements.txt, use o comando abaixo:
         # pip install -r requirements.txt
+        
         # Adicione aqui outras dependências manuais se necessário:
-        # pip install sqlalchemy passlib python-jose[cryptography]
+        # pip install passlib python-jose[cryptography]
 
     - name: Rodar testes
       run: |
-        # Adiciona o diretório 'backend' ao PYTHONPATH
-        # Isso permite que o Python encontre 'backend.users.app' e 'backend.orders.app'
-        # e, com os imports relativos corrigidos, os módulos internos também.
-        PYTHONPATH=$(pwd )/backend pytest
+        # Define o PYTHONPATH para incluir o diretório raiz do projeto
+        # Isso permite que o Python encontre os módulos 'backend.users.app.main' e 'backend.orders.app.main'
+        PYTHONPATH=$(pwd ) pytest
