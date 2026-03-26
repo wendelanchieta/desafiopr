@@ -26,7 +26,7 @@ def create_order(
     new_order = crud.create_order(db=db, order=order)
     
     # Dispara tarefa assíncrona para o Redis, usando BackgroundTasks do FastAPI para não bloquear a resposta HTTP
-    background_tasks.add_task(notify_priority_service, new_order.id, new_order.item_description)
+    background_tasks.add_task(notify_priority_service, new_order.id, new_order.descricao_item)
     
     return new_order
 
