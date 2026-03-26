@@ -24,14 +24,14 @@ jobs:
     - name: Instalar dependências
       run: |
         python -m pip install --upgrade pip
-        # Garante que todas as dependências necessárias, incluindo sqlalchemy, redis, psycopg2-binary e python-jose, sejam instaladas
-        pip install fastapi uvicorn pytest python-multipart httpx sqlalchemy redis psycopg2-binary "python-jose[cryptography]"
+        # Garante que todas as dependências necessárias, incluindo sqlalchemy, redis, psycopg2-binary, python-jose e passlib, sejam instaladas
+        pip install fastapi uvicorn pytest python-multipart httpx sqlalchemy redis psycopg2-binary "python-jose[cryptography]" passlib
         
         # IMPORTANTE: Se você tiver um arquivo requirements.txt, use o comando abaixo:
         # pip install -r requirements.txt
         
         # Adicione aqui outras dependências manuais se necessário:
-        # pip install passlib
+        # pip install 
 
     - name: Rodar testes
       run: |
