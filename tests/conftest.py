@@ -1,55 +1,83 @@
 import pytest
+from unittest.mock import patch, MagicMock
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
+from fastapi.testclient import TestClient
 
-# Importar as Bases e as funções get_db de cada módulo da aplicação
-# Assumindo que a raiz do projeto está no PYTHONPATH, então os imports são absolutos
+# --- Mocking database connection and table creation during import ---
+# We need to mock create_engine and Base.metadata.create_all *before*
+# importing the application's main modules, as they execute these on import.
+
+# Mock engine for in-memory SQLite
+TEST_SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
+TEST_ENGINE = create_engine(
+    TEST_SQLALCHEMY_DATABASE_URL,
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
+)
+
+# Mock SessionLocal
+TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=TEST_ENGINE)
+
+# Patch create_engine in the application's database modules
+# This needs to be done for each database.py that creates an engine
+# Assuming the structure is backend.users.app.database and backend.orders.app.database
+@pytest.fixture(scope="session", autouse=True)
+def mock_db_engine():
+    with patch(
+        'backend.users.app.database.create_engine', return_value=TEST_ENGINE
+    ) as mock_users_engine,
+    patch(
+        'backend.orders.app.database.create_engine', return_value=TEST_ENGINE
+    ) as mock_orders_engine:
+        yield
+
+# Patch Base.metadata.create_all to do nothing on import
+# This needs to be done for each Base.metadata.create_all call on import
+@pytest.fixture(scope="session", autouse=True)
+def mock_create_all():
+    with patch('backend.users.app.database.Base.metadata.create_all') as mock_users_create_all, \
+         patch('backend.orders.app.database.Base.metadata.create_all') as mock_orders_create_all:
+        yield
+
+# Now import the application modules after patching
+# The order of imports here is crucial: first patch, then import.
 from backend.users.app.database import Base as UsersBase, get_db as get_users_db
 from backend.orders.app.database import Base as OrdersBase, get_db as get_orders_db
 
 from backend.users.app.main import app as users_app
 from backend.orders.app.main import app as orders_app
 
-# Configuração do banco de dados SQLite em memória para testes
-SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
-
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-    connect_args={"check_same_thread": False},
-    poolclass=StaticPool,
-)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
 
 @pytest.fixture(name="session")
 def session_fixture():
-    # Cria as tabelas para todos os modelos definidos em UsersBase e OrdersBase
-    UsersBase.metadata.create_all(bind=engine)
-    OrdersBase.metadata.create_all(bind=engine)
+    # Create tables in the in-memory SQLite database for each Base
+    UsersBase.metadata.create_all(bind=TEST_ENGINE)
+    OrdersBase.metadata.create_all(bind=TEST_ENGINE)
     
-    db = TestingSessionLocal()
+    db = TestSessionLocal()
     try:
         yield db
     finally:
         db.close()
-        # Garante que o banco de dados em memória seja limpo após cada teste
-        UsersBase.metadata.drop_all(bind=engine)
-        OrdersBase.metadata.drop_all(bind=engine)
+        # Clean up the in-memory database after each test
+        UsersBase.metadata.drop_all(bind=TEST_ENGINE)
+        OrdersBase.metadata.drop_all(bind=TEST_ENGINE)
 
 
 @pytest.fixture(name="client")
 def client_fixture(session):
-    # Sobrescreve a dependência get_db para usar a sessão de teste
+    # Override the get_db dependency to use the test session
     def override_get_db():
         try:
             yield session
         finally:
             session.close()
 
-    # Para o módulo de usuários
+    # For the users module
     users_app.dependency_overrides[get_users_db] = override_get_db
-    # Para o módulo de pedidos
+    # For the orders module
     orders_app.dependency_overrides[get_orders_db] = override_get_db
 
     with TestClient(users_app) as users_client:
@@ -58,11 +86,11 @@ def client_fixture(session):
             # Ou ajuste para retornar apenas um se os testes forem separados
             yield {"users": users_client, "orders": orders_client}
 
-    # Limpa as sobrescritas após os testes
+    # Clear overrides after tests
     users_app.dependency_overrides.clear()
     orders_app.dependency_overrides.clear()
 
-# Se você tem testes que precisam de um cliente específico (ex: apenas o de usuários)
+
 @pytest.fixture(name="users_client")
 def users_client_fixture(session):
     def override_get_db():
@@ -74,6 +102,7 @@ def users_client_fixture(session):
     with TestClient(users_app) as c:
         yield c
     users_app.dependency_overrides.clear()
+
 
 @pytest.fixture(name="orders_client")
 def orders_client_fixture(session):

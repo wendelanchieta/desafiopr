@@ -37,5 +37,5 @@ jobs:
       run: |
         # Define o PYTHONPATH para incluir o diretório raiz do projeto
         # Isso permite que o Python encontre os módulos 'backend.users.app.main' e 'backend.orders.app.main'
-        # E, com os imports relativos corrigidos nos routers, tudo deve funcionar.
+        # E, com o conftest.py, a conexão com o banco de dados será mockada.
         PYTHONPATH=$(pwd ) pytest
