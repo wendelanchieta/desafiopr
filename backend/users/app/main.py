@@ -20,3 +20,10 @@ app.include_router(auth.router, prefix="/api/auth", tags=["Auth"])
 @app.get("/")
 def health():
     return {"status": "active", "service": "users-service"}
+
+@app.get("/api/orders/")
+def read_orders():
+    return [
+        {"id": 1, "descricao_item": "Notebook Gamer", "status": "Concluído"},
+        {"id": 2, "descricao_item": "Monitor 4K", "status": "Pendente"}
+    ]  

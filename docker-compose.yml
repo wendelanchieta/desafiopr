@@ -54,6 +54,8 @@ services:
     environment:
       - DATABASE_URL=postgresql://admin:desafioPrPedidos@db-orders:5432/orders_db
       - REDIS_URL=redis://redis-broker:6379/0
+      - JWT_SECRET=chave_desafio_Pr_jwt_2026
+      - SECRET_KEY=chave_desafio_Pr_jwt_2026
     depends_on:
       - db-orders
       - redis-broker
@@ -70,6 +72,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://admin:desafioPrUsuarios@db-users:5432/users_db
       - JWT_SECRET=chave_desafio_Pr_jwt_2026
+      - SECRET_KEY=chave_desafio_Pr_jwt_2026
     depends_on:
       - db-users
     networks:

@@ -1,39 +1,36 @@
 import React, { useState } from 'react';
 
 const LoginApp = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+	const [username, setUsername] = useState('');
+	const [password, setPassword] = useState('');
+	const [error, setError] = useState('');
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setError('');
+	const handleLogin = async (e) => {
+	  e.preventDefault();
+	  
+	  try {
+		const response = await fetch('http://localhost:8001/api/auth/login', {
+		  method: 'POST',
+		  headers: { 'Content-Type': 'application/json' },
+		  body: JSON.stringify({ username, password })
+		});
 
-    try {
-      //Chamada para o Serviço de Usuários (FastAPI)
-      const response = await fetch('http://localhost:8001/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
-
-      if (!response.ok) {
-        throw new Error('Credenciais inválidas');
-      }
-
-      const data = await response.json();
-      
-      //Salva o token JWT para ser usado por outros MFEs
-      localStorage.setItem('jwt_token', data.token);
-      localStorage.setItem('user_name', data.user.name);
-
-      //Dispara um evento global para o MFE Shell saber que o usuário logou
-      window.dispatchEvent(new Event('auth-change'));
-
-    } catch (err) {
-      setError(err.message);
-    }
-  };
+		if (response.ok) {
+		  const data = await response.json();
+		  localStorage.setItem('token', data.access_token); 
+		  
+		  if (window.updateShellAuth) {
+			window.updateShellAuth();
+		  } else {
+			window.location.href = '/'; 
+		  } 
+		} else {
+		  alert("Credenciais inválidas");
+		}
+	  } catch (error) {
+		console.error("Erro no login", error);
+	  }
+	};
 
   return (
     <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px', border: '1px solid #ccc', borderRadius: '8px' }}>
