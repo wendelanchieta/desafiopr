@@ -31,6 +31,30 @@ A solução utiliza `Docker Compose` para orquestrar toda a stack com um único 
    * Isolamento: Cada componente (Shell, Pedidos, Auth API, DBs) roda em um contêiner separado;
    * Portabilidade: Garante que o ambiente de desenvolvimento seja idêntico ao de produção/avaliação.
 
+## Documentação das APIs
+
+#### Openapi Swagger
+
+`http://localhost:8000/docs`
+
+## Execução
+
+### Stack
+
+#### Docker compose
+
+> `docker-compose down && docker-compose build --no-cache && docker-compose up`
+
+### Testes
+
+#### Serviço de pedidos
+
+> `docker-compose exec orders-service env PYTHONPATH=. pytest -s`
+
+#### Serviço de usuários
+
+> `docker-compose exec users-service env PYTHONPATH=. pytest -s`
+
 ## Evoluções futuras 
 
 > Devido à restrição de tempo do desafio, algumas melhorias foram priorizadas para versões futuras:
