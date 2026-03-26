@@ -28,11 +28,6 @@ jobs:
         # Adicione aqui quaisquer outras dependências do seu projeto FastAPI
         # Por exemplo: pip install "SQLAlchemy[asyncio]" "asyncpg" alembic
 
-    - name: Configurar PYTHONPATH
-      run: echo "PYTHONPATH=$PYTHONPATH:$(pwd )" >> $GITHUB_ENV
-
     - name: Rodar testes
       run: |
-        # Assumindo que seus arquivos de teste estão na raiz ou em uma pasta 'tests/'
-        # E que o app.main é acessível para o TestClient
         pytest
