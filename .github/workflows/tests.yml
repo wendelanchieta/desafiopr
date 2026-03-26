@@ -35,7 +35,9 @@ jobs:
 
     - name: Rodar testes
       run: |
-        # Define o PYTHONPATH para incluir o diretório raiz do projeto
-        # Isso permite que o Python encontre os módulos 'backend.users.app.main' e 'backend.orders.app.main'
-        # E, com os imports relativos corrigidos nos routers, tudo deve funcionar.
-        PYTHONPATH=$(pwd ) pytest
+        # Define o PYTHONPATH para incluir:
+        # 1. A raiz do projeto (para imports como 'backend.users.app.main' )
+        # 2. As pastas 'backend/users' e 'backend/orders' (para que 'app' dentro delas seja um pacote de nível superior)
+        # Isso deve resolver os imports internos como 'from app import models'
+        export PYTHONPATH=$(pwd):$(pwd)/backend/users:$(pwd)/backend/orders:$PYTHONPATH
+        pytest
