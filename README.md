@@ -43,17 +43,29 @@ A solução utiliza `Docker Compose` para orquestrar toda a stack com um único 
 
 #### Docker compose
 
-> `docker-compose down && docker-compose build --no-cache && docker-compose up`
+``` shell
+
+docker-compose down && docker-compose build --no-cache && docker-compose up
+
+```
 
 ### Testes
 
 #### Serviço de pedidos
 
-> `docker-compose exec orders-service env PYTHONPATH=. pytest -s`
+``` shell
+
+docker-compose exec orders-service env PYTHONPATH=. pytest -s
+
+```
 
 #### Serviço de usuários
 
-> `docker-compose exec users-service env PYTHONPATH=. pytest -s`
+``` shell
+
+docker-compose exec users-service env PYTHONPATH=. pytest -s
+
+```
 
 ## Evoluções futuras 
 
