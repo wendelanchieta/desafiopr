@@ -3,7 +3,7 @@ from unittest.mock import patch, MagicMock
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
-from fastapi.testclient import TestClient
+from fastapi.testclient import TestClient # Adicionado: Importação de TestClient
 
 # --- Mocking database connection and table creation during import ---
 # We need to mock create_engine and Base.metadata.create_all *before*
@@ -25,21 +25,19 @@ TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=TEST_ENG
 # Assuming the structure is backend.users.app.database and backend.orders.app.database
 @pytest.fixture(scope="session", autouse=True)
 def mock_db_engine():
-    with patch(
-        'backend.users.app.database.create_engine', return_value=TEST_ENGINE
-    ) as mock_users_engine,
-    patch(
-        'backend.orders.app.database.create_engine', return_value=TEST_ENGINE
-    ) as mock_orders_engine:
-        yield
+    # Correção da sintaxe para múltiplos patch contexts
+    with patch('backend.users.app.database.create_engine', return_value=TEST_ENGINE): # type: ignore
+        with patch('backend.orders.app.database.create_engine', return_value=TEST_ENGINE): # type: ignore
+            yield
 
 # Patch Base.metadata.create_all to do nothing on import
 # This needs to be done for each Base.metadata.create_all call on import
 @pytest.fixture(scope="session", autouse=True)
 def mock_create_all():
-    with patch('backend.users.app.database.Base.metadata.create_all') as mock_users_create_all, \
-         patch('backend.orders.app.database.Base.metadata.create_all') as mock_orders_create_all:
-        yield
+    # Correção da sintaxe para múltiplos patch contexts
+    with patch('backend.users.app.database.Base.metadata.create_all'): # type: ignore
+        with patch('backend.orders.app.database.Base.metadata.create_all'): # type: ignore
+            yield
 
 # Now import the application modules after patching
 # The order of imports here is crucial: first patch, then import.
