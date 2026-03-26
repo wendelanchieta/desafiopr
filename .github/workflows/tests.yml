@@ -19,15 +19,17 @@ jobs:
     - name: Configurar Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.9' # Ou a versão do Python que você usa
+        python-version: '3.9' # Ajuste para a versão que você utiliza (ex: '3.10', '3.11')
 
     - name: Instalar dependências
       run: |
         python -m pip install --upgrade pip
         pip install fastapi uvicorn pytest python-multipart httpx
-        # Adicione aqui quaisquer outras dependências do seu projeto FastAPI
-        # Por exemplo: pip install "SQLAlchemy[asyncio]" "asyncpg" alembic
+        # Se você tiver um requirements.txt, use:
+        # pip install -r requirements.txt
 
     - name: Rodar testes
       run: |
-        pytest
+        # Define o PYTHONPATH para incluir o diretório raiz do projeto
+        # Isso permite que o Python encontre o módulo 'backend.users.app.main' e 'backend.orders.app.main'
+        PYTHONPATH=$(pwd ) pytest
